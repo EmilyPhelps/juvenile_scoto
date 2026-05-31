@@ -1,8 +1,5 @@
 #Rscript
 #double heiarchical models using bayseian approach
-#Starting formula by AW
-#mod1b_brms<-brm(preference ~  age_st + order + temperature_st + (1|population) + (1|family), 
-#                data = gld, family=gaussian())     
 
 #Changing to have nested random
 mod1b_brms<-brm(preference ~  age_st + order + temperature_st + (1|population) + (1|family), 
@@ -100,36 +97,6 @@ mod1b_brms.plot <-  ggplot() +
 #Double hierarchical effects
 #"We can measure individual variation in predictability by estimating variation in residual intra-individual variation (rIIV),
 #i.e. the spread of residuals around an individuals reaction norm""
-bf <- bf(preference ~  age_st + order + temperature_st
-         + (1|population)+ (1|family), 
-         sigma ~ (1 | population) + (1| family))
-
-mod1b_dh <-brm(bf, 
-               data = gld, 
-               family=gaussian())     
-
-#Since sigma components are given in standard deviations on the log-scale we need to first exponentiate the
-#estimate and then square it to calculate the variance.
-pop.res <- exp(posterior_samples(mod1b_dh)$"sd_population__sigma_Intercept")^2
-sig.pop <- summarize_posterior(pop.res) %>% mutate(var="Population sigma intercept")
-
-fam.res <- exp(posterior_samples(mod1b_dh)$"sd_family__sigma_Intercept")^2
-sig.fam <- summarize_posterior(fam.res) %>% mutate(var="Family sigma intercept")
-
-sig.df <- rbind(sig.fam, sig.pop)
-sig.plot <- ggplot(sig.df) +
-  geom_pointrange(aes(x=var, ymin=lower, ymax=upper, y=mean)) +
-  geom_hline(yintercept = 0, colour="red", linetype="dashed") +
-  theme_minimal() +
-  coord_flip() 
-
-#Not near 0 bound so sig?/ confident in some variation
-#Estimating the coeeficient of variation in predictability (CVp) 
-log.norm.res <- exp(posterior_samples(mod1b_dh)$"sd_population__sigma_Intercept"^2)
-CVP <- sqrt(log.norm.res - 1)
-
-summarize_posterior(CVP)
-
 #"Finally, similar to BLUPs in the first section we can plot the posterior distribution of each individual’s
 #predicted standard deviation (i.e. rIIV). Individuals with higher rIIV are less predictable than individuals
 #with lower rIIV (Fig )."
@@ -164,6 +131,7 @@ mod1b_dh_cov <-brm(bf,
 summary(mod1b_dh_cov)
 
 write_rds(mod1b_dh_cov, "data/mod1b_dh_cov.RDS")
+
 capture.output(summary(mod1b_dh_cov), file = "data/mod_dh_cov_summary.txt")
 #mod1b_dh_cov <- read_rds("data/mod1b_dh_cov.RDS")
 pop.res <- exp(posterior_samples(mod1b_dh_cov)$"sd_population__sigma_Intercept")^2
