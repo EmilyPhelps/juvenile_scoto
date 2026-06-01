@@ -3,19 +3,8 @@
 library(tidyverse)
 library(lubridate)
 library(reshape2)
-library(chron)
 
 #Analysis
-library(asreml)
-library(modeest)
-library(car)
-library(MASS)
-library(distances)
-library(ape)
-library(ade4)
-library(gdata)
-library(phytools)
-library(coda)
 library(brms)
 
 #Data Visualization
